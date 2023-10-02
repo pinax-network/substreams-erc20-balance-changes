@@ -24,7 +24,6 @@ modules:
   - name: map_balance_changes
     kind: map
     doc: Extracts ERC20 balance changes
-    initialBlock: 1397553
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
@@ -33,7 +32,6 @@ modules:
   - name: map_valid_balance_changes
     kind: map
     doc: Extracts ERC20 balance changes
-    initialBlock: 1397553
     inputs:
       - map: map_balance_changes
     output:
@@ -41,7 +39,6 @@ modules:
 
   - name: map_unknown_balance_changes
     kind: map
-    initialBlock: 1397553
     inputs:
       - map: map_balance_changes
     output:
@@ -57,7 +54,6 @@ modules:
 
   - name: graph_out
     kind: map
-    initialBlock: 1397553
     inputs:
       - source: sf.substreams.v1.Clock
       - map: map_balance_changes

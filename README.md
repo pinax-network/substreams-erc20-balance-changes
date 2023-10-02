@@ -1,6 +1,10 @@
 # Substreams ERC20 Balance Changes
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+
+This is a fork of the original github https://github.com/streamingfast/substreams-erc20-balance-changes
+
+This fork have InitialBalance = 0 to allow more flexibility on blockchain.
 The goal of this Substreams project is to extract all ERC20/ERC721 transfers from Ethereum events for the full chain.
 
 The `map_balance_changes` module will output messages of type `erc20.types.v1.BalanceChange` defined by: 
