@@ -4,8 +4,6 @@ CREATE TABLE IF NOT EXISTS balance_changes  (
     old_balance Nullable(String),
     new_balance Nullable(String),
     transaction_id Nullable(String),
-    block_num Nullable(String),
-    timestamp Nullable(String),
 )
 ENGINE = MergeTree()
 ORDER BY (contract)
