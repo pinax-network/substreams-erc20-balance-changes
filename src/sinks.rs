@@ -31,7 +31,7 @@ pub fn graph_out(clock: Clock, balance_changes: BalanceChanges) -> Result<Entity
     Ok(tables.to_entity_changes())
 }
 
-#[substreams::handlers::map]
+/*#[substreams::handlers::map]
 pub fn db_out(clock: Clock, balance_changes: BalanceChanges) -> Result<DatabaseChanges, Error> {
     let mut tables = substreams_database_change::tables::Tables::new();
     let block_num = clock.number.to_string();
@@ -56,4 +56,4 @@ pub fn db_out(clock: Clock, balance_changes: BalanceChanges) -> Result<DatabaseC
     }
 
     Ok(tables.to_database_changes())
-}
+}*/
