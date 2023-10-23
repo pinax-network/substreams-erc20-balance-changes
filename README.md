@@ -1,6 +1,12 @@
 # Substreams ERC20 Balance Changes
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+### First block containing ERC20 Transfers
+| Chain                                                                                           | Block number                                            |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| ETH                                                                                             | 913 198                                                 |
+| Polygon                                                                                         | 2764                                                    |
+| BSC                                                                                             | 64 253                                                  |
 
 This is a fork of the original github https://github.com/streamingfast/substreams-erc20-balance-changes
 
