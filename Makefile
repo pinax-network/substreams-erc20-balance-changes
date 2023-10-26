@@ -28,9 +28,9 @@ info:
 
 .PHONY: run
 run: build
-	substreams run substreams.yaml map_balance_changes -e mainnet.eth.streamingfast.io:443 -s 15000000 -t 16000000 --output jsonl
+	substreams run substreams.yaml graph_out -e eth.substreams.pinax.network:9000 -s 1000000
 
 .PHONY: gui
 gui: build
-	substreams gui substreams.yaml balance_change_stats -e mainnet.eth.streamingfast.io:443 --production-mode
+	substreams gui substreams.yaml graph_out -e eth.substreams.pinax.network:9000 -s 1000000
 

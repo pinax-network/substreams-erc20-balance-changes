@@ -1,10 +1,11 @@
 [package]
-name = "erc20"
-version = "0.3.0"
+name = "substreams_erc20_balance_changes"
+version = "0.0.6"
 description = "ERC-20"
 edition = "2021"
 authors = [
     "Denis <denis@pinax.network>",
+    "Mathieu <mathieu@pinax.network>",
     "Yaro <yaro@pinax.network>",
     "Matthieu Vachon <https://github.com/maoueh>",
 ]
