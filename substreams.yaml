@@ -3,7 +3,9 @@ package:
   name: erc20_balance_changes
   version: v0.0.5
   url: https://github.com/streamingfast/erc20-balance-changes
-  doc: ERC-20
+  image: logo.png
+  doc: |
+    This Substreams extracts all ERC20/ERC721 transfers from Ethereum events for the full chain.
 
 imports:
   entities: https://github.com/streamingfast/substreams-sink-entity-changes/releases/download/v1.3.0/substreams-sink-entity-changes-v1.3.0.spkg

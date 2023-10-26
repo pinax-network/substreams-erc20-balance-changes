@@ -1,3 +1,4 @@
 target/
 *.spkg
 replay.log
+/.idea
