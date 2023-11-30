@@ -1,8 +1,8 @@
 deriveFrom: https://github.com/streamingfast/substreams-erc20-balance-changes/releases/download/v1.2.0/erc20-balance-changes-v1.2.0.spkg
 
 package:
-  name: "erc20-balance-changes-bnb"
-  version: "1.2.0"
+  name: erc20_balance_changes_bnb
+  version: v1.2.0
 
 network: bnb
 
@@ -11,3 +11,9 @@ initialBlocks:
   map_valid_balance_changes: 64253
   map_unknown_balance_changes: 64253
   graph_out: 64253
+
+sink:
+  module: graph_out
+  config:
+    schema: "./schema.sql"
+    engine: clickhouse
