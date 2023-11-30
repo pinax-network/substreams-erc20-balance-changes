@@ -1,11 +1,13 @@
 deriveFrom: https://github.com/streamingfast/substreams-erc20-balance-changes/releases/download/v1.1.0/erc20-balance-changes-v1.1.0.spkg
 
 package:
-  name: "erc20-balance-changes"
+  name: "erc20-balance-changes-polygon"
   version: "1.1.0"
 
+network: polygon
+
 initialBlocks:
-  map_balance_changes: 0
-  map_valid_balance_changes: 0
-  map_unknown_balance_changes: 0
-  graph_out: 0
+  map_balance_changes: 2764
+  map_valid_balance_changes: 2764
+  map_unknown_balance_changes: 2764
+  graph_out: 2764
