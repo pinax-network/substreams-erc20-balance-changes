@@ -3,6 +3,7 @@ deriveFrom: https://github.com/streamingfast/substreams-erc20-balance-changes/re
 package:
   name: erc20_balance_changes_polygon
   version: v1.2.0
+  doc: Extracts all ERC20 balance changes.
 
 imports:
   sql: https://github.com/streamingfast/substreams-sink-sql/releases/download/protodefs-v1.0.3/substreams-sink-sql-protodefs-v1.0.3.spkg
