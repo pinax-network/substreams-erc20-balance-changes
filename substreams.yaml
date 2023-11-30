@@ -4,6 +4,9 @@ package:
   name: erc20_balance_changes_mainnet
   version: v1.2.0
 
+imports:
+  sql: https://github.com/streamingfast/substreams-sink-sql/releases/download/protodefs-v1.0.3/substreams-sink-sql-protodefs-v1.0.3.spkg
+
 network: mainnet
 
 initialBlocks:
@@ -11,3 +14,10 @@ initialBlocks:
   map_valid_balance_changes: 913198
   map_unknown_balance_changes: 913198
   graph_out: 913198
+
+sink:
+  module: graph_out
+  type: sf.substreams.sink.sql.v1.Service
+  config:
+    schema: "./schema.sql"
+    engine: clickhouse

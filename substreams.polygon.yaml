@@ -4,6 +4,9 @@ package:
   name: erc20_balance_changes_polygon
   version: v1.2.0
 
+imports:
+  sql: https://github.com/streamingfast/substreams-sink-sql/releases/download/protodefs-v1.0.3/substreams-sink-sql-protodefs-v1.0.3.spkg
+
 network: polygon
 
 initialBlocks:
@@ -11,3 +14,10 @@ initialBlocks:
   map_valid_balance_changes: 2764
   map_unknown_balance_changes: 2764
   graph_out: 2764
+
+sink:
+  module: graph_out
+  type: sf.substreams.sink.sql.v1.Service
+  config:
+    schema: "./schema.sql"
+    engine: clickhouse
