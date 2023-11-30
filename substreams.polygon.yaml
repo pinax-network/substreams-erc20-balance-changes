@@ -11,9 +11,3 @@ initialBlocks:
   map_valid_balance_changes: 2764
   map_unknown_balance_changes: 2764
   graph_out: 2764
-
-sink:
-  module: graph_out
-  config:
-    schema: "./schema.sql"
-    engine: clickhouse

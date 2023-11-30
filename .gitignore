@@ -2,3 +2,4 @@ target/
 *.spkg
 replay.log
 /.idea
+node_modules
