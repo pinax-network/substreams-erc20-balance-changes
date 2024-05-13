@@ -4,6 +4,4 @@ all:
 
 .PHONY: pack
 pack:
-	substreams pack substreams.mainnet.yaml
-	substreams pack substreams.polygon.yaml
-	substreams pack substreams.bnb.yaml
+	substreams pack substreams.yaml
