@@ -11,13 +11,25 @@ imports:
 networks:
   mainnet:
     initialBlock:
-      balance_changes:db_out: 913198
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
   polygon:
     initialBlock:
-      balance_changes:db_out: 2764
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
   bnb:
     initialBlock:
-      balance_changes:db_out: 64253
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
 
 network: mainnet
 
