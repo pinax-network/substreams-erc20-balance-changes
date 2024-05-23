@@ -15,7 +15,6 @@ ORDER BY (id,timestamp, block_number);
 
 -- Indexes for block_number --
 ALTER TABLE balance_changes ADD INDEX balance_changes_block_number_index block_number TYPE minmax;
-ALTER TABLE balance_changes ADD INDEX balance_changes_chain_index TYPE minmax;
 
 -- MV for contract --
 CREATE MATERIALIZED VIEW mv_balance_changes_contract
