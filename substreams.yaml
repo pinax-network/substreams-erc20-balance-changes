@@ -1,7 +1,7 @@
 specVersion: v0.1.0
 package:
   name: erc20_balance_changes
-  version: v1.2.0
+  version: v1.2.1
   doc: Extracts all ERC20 balance changes.
 
 imports:
