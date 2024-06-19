@@ -1,3 +1,4 @@
+-- Table for balance changes --
 CREATE TABLE IF NOT EXISTS balance_changes  (
     "id"            String,
     timestamp       DateTime64(3, 'UTC'),
@@ -37,7 +38,7 @@ CREATE TABLE IF NOT EXISTS token_holders
     updated_at_timestamp DateTime,
     is_deleted           UInt8
 )
-    ENGINE = ReplicatedReplacingMergeTree(block_num, is_deleted)
+    ENGINE = ReplacingMergeTree(block_num, is_deleted)
         PRIMARY KEY (contract,account)
         ORDER BY (contract, account);
 
@@ -60,7 +61,7 @@ CREATE TABLE IF NOT EXISTS account_balances
     block_num            UInt32,
     is_deleted           UInt8
 )
-    ENGINE = ReplicatedReplacingMergeTree(block_num, is_deleted)
+    ENGINE = ReplacingMergeTree(block_num, is_deleted)
         PRIMARY KEY (account,contract)
         ORDER BY (account,contract);
 
