@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS token_holders
     account              String,
     contract             String,
     amount               Int64,
-    updated_at_block_num UInt64,
-    updated_at_timestamp DateTime,
+    block_num            UInt64,
+    timestamp            DateTime,
     is_deleted           UInt8
 )
     ENGINE = ReplacingMergeTree(block_num, is_deleted)
