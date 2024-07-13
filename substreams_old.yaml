@@ -1,0 +1,41 @@
+specVersion: v0.1.0
+package:
+  name: erc20_balance_changes
+  version: v1.2.2
+  doc: Extracts all ERC20 balance changes.
+
+imports:
+  sql: https://github.com/streamingfast/substreams-sink-sql/releases/download/protodefs-v1.0.3/substreams-sink-sql-protodefs-v1.0.3.spkg
+  balance_changes: https://github.com/streamingfast/substreams-erc20-balance-changes/releases/download/v1.2.0/erc20-balance-changes-v1.2.0.spkg
+
+networks:
+  mainnet:
+    initialBlock:
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
+  polygon:
+    initialBlock:
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
+  bnb:
+    initialBlock:
+      balance_changes:db_out: 0
+      balance_changes:map_balance_changes: 0
+      balance_changes:map_valid_balance_changes: 0
+      balance_changes:map_unknown_balance_changes: 0
+      balance_changes:graph_out: 0
+
+network: mainnet
+
+sink:
+  module: balance_changes:db_out
+  type: sf.substreams.sink.sql.v1.Service
+  config:
+    schema: "./schema.sql"
+    engine: clickhouse
