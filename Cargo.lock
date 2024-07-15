@@ -161,7 +161,11 @@ checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "erc20"
+<<<<<<< HEAD
 version = "1.2.3"
+=======
+version = "1.0.0"
+>>>>>>> ad453e5422dec1c503144b55ee1cd345e8f67a85
 dependencies = [
  "anyhow",
  "ethabi 18.0.0",

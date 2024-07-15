@@ -1,4 +1,5 @@
 # Substreams ERC20 Balance Changes
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ### Substreams
@@ -11,9 +12,8 @@
 
 ### Networks supported
 
-| Network    | `initialBlocks` |
-|------------|-----------------|
-| `mainnet`  | 913198
-| `polygon`  | 2764
-| `bnb`      | 64253
-
+| Network   | `initialBlocks` |
+| --------- | --------------- |
+| `mainnet` | 913198          |
+| `polygon` | 2764            |
+| `bnb`     | 64253           |
