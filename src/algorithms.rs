@@ -1,71 +1,72 @@
 use std::collections::HashMap;
 
-use substreams::log;
-use substreams_ethereum::pb::eth::v2::{Call, StorageChange, TransactionTrace};
-use substreams::scalar::BigInt;
-use substreams::Hex;
 use crate::abi::erc20::events::Transfer;
 use hex_literal::hex;
+use substreams::log;
+use substreams::scalar::BigInt;
+use substreams::Hex;
+use substreams_ethereum::pb::eth::v2::{Call, StorageChange, TransactionTrace};
 
 const _NULL_ADDRESS: [u8; 20] = hex!("0000000000000000000000000000000000000000");
 const ZERO_STORAGE_PREFIX: [u8; 16] = hex!("00000000000000000000000000000000");
 
 // algorithm #1 (normal case)
-pub fn find_erc20_balance_changes_algorithm1(
-    call: &Call,
-    transfer: &Transfer,
-    keccak_address_map: &StorageKeyToAddressMap,
-) -> Vec<(Vec<u8>, StorageChange)> {
-    let mut out = Vec::new();
-
-    for storage_change in &call.storage_changes {
+pub fn find_erc20_balance_changes_algorithm1<'a>(
+    call: &'a Call,
+    transfer: &'a Transfer,
+    keccak_address_map: &'a StorageKeyToAddressMap,
+) -> impl Iterator<Item = (Vec<u8>, &'a StorageChange)> + 'a {
+    call.storage_changes.iter().filter_map(|storage_change| {
         // Check if the transfer matches the storage change balance changes
         if !is_erc20_valid_balance(transfer, storage_change) {
-            continue;
+            return None;
         }
 
         // extract the owner address
         let owner = match get_owner_from_keccak_address_map(keccak_address_map, &storage_change) {
             Some(address) => address,
-            None => continue
+            None => return None,
         };
 
         // make sure owner is either the sender or receiver
         if !is_erc20_valid_address(&owner, transfer) {
-            log::info!("owner={} does not match transfer from={} to={}", Hex(owner), Hex(&transfer.from), Hex(&transfer.to));
-            continue;
+            log::info!(
+                "owner={} does not match transfer from={} to={}",
+                Hex(owner),
+                Hex(&transfer.from),
+                Hex(&transfer.to)
+            );
+            return None;
         }
-        out.push((owner, storage_change.clone()));
-    }
-    out
+        Some((owner, storage_change))
+    })
 }
 
 // algorithm #2 (case where storage changes are not in the same call as the transfer event)
-pub fn find_erc20_balance_changes_algorithm2(
-    child_calls: Vec<Call>,
-    transfer: &Transfer,
-    keccak_address_map: &StorageKeyToAddressMap,
-) -> Vec<(Vec<u8>, StorageChange)> {
-    let mut out = Vec::new();
-
-    //get all storage changes for these calls:
-    let mut storage_changes = Vec::new();
-    for call in child_calls.iter() {
-        storage_changes.extend(call.storage_changes.clone());
-    }
-
+pub fn find_erc20_balance_changes_algorithm2<'a>(
+    trx: &'a TransactionTrace,
+    call: &'a Call,
+    transfer: &'a Transfer,
+    keccak_address_map: &'a StorageKeyToAddressMap,
+) -> Vec<(Vec<u8>, &'a StorageChange)> {
     let mut total_sent = BigInt::zero();
     let mut total_received = BigInt::zero();
+    let mut out = Vec::new();
 
     //check if any of the storage changes match the transfer.to or transfer.from
-    for storage_change in storage_changes.clone().iter() {
+    for storage_change in get_all_child_call_storage_changes(call, trx) {
         let owner = match get_owner_from_keccak_address_map(keccak_address_map, &storage_change) {
             Some(address) => address,
-            None => continue
+            None => continue,
         };
 
         if !is_erc20_valid_address(&owner, transfer) {
-            log::info!("owner={} does not match transfer from={} to={}", Hex(owner), Hex(&transfer.from), Hex(&transfer.to));
+            log::info!(
+                "owner={} does not match transfer from={} to={}",
+                Hex(owner),
+                Hex(&transfer.from),
+                Hex(&transfer.to)
+            );
             continue;
         }
 
@@ -79,7 +80,7 @@ pub fn find_erc20_balance_changes_algorithm2(
             total_received = total_received + balance_change;
         };
 
-        out.push((owner, storage_change.clone()));
+        out.push((owner, storage_change));
     }
 
     if total_sent == transfer.value {
@@ -92,17 +93,21 @@ pub fn find_erc20_balance_changes_algorithm2(
     }
 
     // look for a storage change that matches the diff
-    for storage_change in storage_changes.iter() {
-
+    for storage_change in get_all_child_call_storage_changes(call, trx) {
         // Check if the transfer matches the storage change balance changes
         let owner = match get_owner_from_keccak_address_map(keccak_address_map, &storage_change) {
             Some(address) => address,
-            None => continue
+            None => continue,
         };
 
         // make sure owner is either the sender or receiver
         if !is_erc20_valid_address(&owner, transfer) {
-            log::info!("owner={} does not match transfer from={} to={}", Hex(owner), Hex(&transfer.from), Hex(&transfer.to));
+            log::info!(
+                "owner={} does not match transfer from={} to={}",
+                Hex(owner),
+                Hex(&transfer.from),
+                Hex(&transfer.to)
+            );
             continue;
         }
 
@@ -119,12 +124,11 @@ pub fn find_erc20_balance_changes_algorithm2(
             continue;
         }
 
-        out.push((owner, storage_change.clone()));
+        out.push((owner, storage_change));
     }
 
     out
 }
-
 
 pub type StorageKeyToAddressMap = HashMap<Vec<u8>, Vec<u8>>;
 
@@ -163,7 +167,7 @@ pub fn addresses_for_storage_keys(call: &Call) -> StorageKeyToAddressMap {
 
 pub fn get_owner_from_keccak_address_map(
     keccak_address_map: &StorageKeyToAddressMap,
-    storage_change: &StorageChange
+    storage_change: &StorageChange,
 ) -> Option<Vec<u8>> {
     // If found in the map, clone it; otherwise enter the or_else closure
     keccak_address_map
@@ -205,19 +209,22 @@ pub fn is_erc20_valid_balance(transfer: &Transfer, storage_change: &StorageChang
     // https://github.com/streamingfast/substreams-erc20-balance-changes/issues/14
     let diff = BigInt::absolute(&(&balance_change_abs - &transfer_value_abs));
     if diff > BigInt::one() {
-        log::info!("Balance change does not match transfer value. Balance change: {}, transfer value: {}", balance_change_abs, transfer_value_abs);
+        log::info!(
+            "Balance change does not match transfer value. Balance change: {}, transfer value: {}",
+            balance_change_abs,
+            transfer_value_abs
+        );
         return false;
     }
     return true;
 }
 
-pub fn get_all_child_calls(original: &Call, trx: &TransactionTrace) -> Vec<Call> {
-    let mut out = Vec::new();
-
-    for call in trx.calls.iter() {
-        if call.parent_index == original.index {
-            out.push(call.clone());
-        }
-    }
-    out
+fn get_all_child_call_storage_changes<'a>(
+    original: &'a Call,
+    trx: &'a TransactionTrace,
+) -> impl Iterator<Item = &'a StorageChange> + 'a {
+    trx.calls
+        .iter()
+        .filter(move |call| call.parent_index == original.index)
+        .flat_map(|call| call.storage_changes.iter())
 }

@@ -1,5 +1,8 @@
 use crate::abi::{self};
-use crate::algorithms::{addresses_for_storage_keys, find_erc20_balance_changes_algorithm1, find_erc20_balance_changes_algorithm2, get_all_child_calls, StorageKeyToAddressMap};
+use crate::algorithms::{
+    addresses_for_storage_keys, find_erc20_balance_changes_algorithm1,
+    find_erc20_balance_changes_algorithm2, StorageKeyToAddressMap,
+};
 use crate::pb::erc20::types::v1::{BalanceChange, BalanceChangeType, Events, Transfer};
 use crate::utils::{clock_to_date, index_to_version};
 use abi::erc20::events::Transfer as TransferAbi;
@@ -18,7 +21,13 @@ pub fn map_events(clock: Clock, block: Block) -> Result<Events, Error> {
     Ok(events)
 }
 
-pub fn to_transfer(clock: &Clock, trx: &TransactionTrace, call: &Call, log: &Log, transfer: &TransferAbi) -> Transfer {
+pub fn to_transfer(
+    clock: &Clock,
+    trx: &TransactionTrace,
+    call: &Call,
+    log: &Log,
+    transfer: &TransferAbi,
+) -> Transfer {
     Transfer {
         // -- block --
         block_num: clock.number,
@@ -47,10 +56,19 @@ pub fn to_transfer(clock: &Clock, trx: &TransactionTrace, call: &Call, log: &Log
     }
 }
 
-pub fn to_balance_change(clock: &Clock, trx: &TransactionTrace, call: &Call, log: &Log, transfer: &TransferAbi, owner: Vec<u8>, storage_change: &StorageChange, change_type: BalanceChangeType) -> BalanceChange {
+pub fn to_balance_change(
+    clock: &Clock,
+    trx: &TransactionTrace,
+    call: &Call,
+    log: &Log,
+    transfer: &TransferAbi,
+    owner: Vec<u8>,
+    storage_change: &StorageChange,
+    change_type: BalanceChangeType,
+) -> BalanceChange {
     let old_balance = BigInt::from_unsigned_bytes_be(&storage_change.old_value);
     let new_balance = BigInt::from_unsigned_bytes_be(&storage_change.new_value);
-    let amount = new_balance.clone() - old_balance.clone();
+    let amount = &new_balance - &old_balance;
 
     BalanceChange {
         // -- block --
@@ -114,34 +132,61 @@ pub fn insert_events(clock: &Clock, block: &Block, events: &mut Events) {
             if transfer.value.is_zero() {
                 continue;
             }
-            events.transfers.push(to_transfer(&clock, &trx, &call, &log, &transfer));
+            events
+                .transfers
+                .push(to_transfer(clock, trx, call, log, &transfer));
 
             // -- Balance Changes --
             keccak_address_map.extend(addresses_for_storage_keys(&call)); // memoize
-            let balance_changes = iter_balance_changes_algorithms(trx, call, &transfer, &keccak_address_map);
+            let balance_changes =
+                iter_balance_changes_algorithms(trx, call, &transfer, &keccak_address_map);
             for (owner, storage_change, change_type) in balance_changes {
-                let balance_change = to_balance_change(clock, trx, call, log, &transfer, owner, &storage_change, change_type);
+                let balance_change = to_balance_change(
+                    clock,
+                    trx,
+                    call,
+                    log,
+                    &transfer,
+                    owner,
+                    storage_change,
+                    change_type,
+                );
 
                 // insert balance change event
                 events.balance_changes.push(balance_change);
             }
-
         }
     }
 }
 
-pub fn iter_balance_changes_algorithms(trx: &TransactionTrace, call: &Call, transfer: &TransferAbi, keccak_address_map: &StorageKeyToAddressMap ) -> Vec<(Vec<u8>, StorageChange, BalanceChangeType)> {
+pub fn iter_balance_changes_algorithms<'a>(
+    trx: &'a TransactionTrace,
+    call: &'a Call,
+    transfer: &'a TransferAbi,
+    keccak_address_map: &'a StorageKeyToAddressMap,
+) -> Vec<(Vec<u8>, &'a StorageChange, BalanceChangeType)> {
     let mut out = Vec::new();
 
     // algorithm #1 (normal case)
-    for (owner, storage_changes) in find_erc20_balance_changes_algorithm1(&call, &transfer, &keccak_address_map) {
-        out.push(( owner, storage_changes, BalanceChangeType::BalanceChangeType1));
+    for (owner, storage_changes) in
+        find_erc20_balance_changes_algorithm1(call, transfer, keccak_address_map)
+    {
+        out.push((
+            owner,
+            storage_changes,
+            BalanceChangeType::BalanceChangeType1,
+        ));
     }
 
     // algorithm #2 (case where storage changes are not in the same call as the transfer event)
-    let child_calls = get_all_child_calls(&call, &trx);
-    for (owner, storage_changes) in find_erc20_balance_changes_algorithm2(child_calls, &transfer, &keccak_address_map) {
-        out.push(( owner, storage_changes, BalanceChangeType::BalanceChangeType2));
+    for (owner, storage_changes) in
+        find_erc20_balance_changes_algorithm2(trx, call, transfer, keccak_address_map)
+    {
+        out.push((
+            owner,
+            storage_changes,
+            BalanceChangeType::BalanceChangeType2,
+        ));
     }
     out
 }
